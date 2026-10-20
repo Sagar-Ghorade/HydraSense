@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>HydraSense - Historical Data</title>
+<!-- Tailwind CSS v3 with Plugins -->
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<!-- Google Fonts: Inter -->
+<link href="https://fonts.googleapis.com" rel="preconnect"/>
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<!-- Chart.js for smooth data visualization -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style data-purpose="custom-styling">
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f0f5fc;
+    }
+  </style>
+</head>
+<body class="min-h-screen text-slate-800 antialiased pb-12">
+<!-- BEGIN: MainHeader -->
+<header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-xs" data-purpose="top-navigation">
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+<!-- Brand Logo -->
+<div class="flex items-center gap-2.5">
+<div class="text-blue-600 flex items-center justify-center">
+<svg class="w-8 h-8" fill="none" viewbox="0 0 32 32">
+<path d="M16 2.5C16 2.5 6 14.5 6 21C6 26.5228 10.4772 31 16 31C21.5228 31 26 26.5228 26 21C26 14.5 16 2.5 16 2.5Z" stroke="#2563EB" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+<path d="M16 8C16 8 10 16 10 20.5C10 23.8 12.7 26.5 16 26.5C19.3 26.5 22 23.8 22 20.5C22 16 16 8 16 8Z" fill="#2563EB" fill-opacity="0.3"></path>
+</svg>
+</div>
+<span class="text-2xl font-bold tracking-tight text-blue-600">HydraSense</span>
+</div>
+<!-- Navigation Links -->
+<nav class="hidden md:flex items-center space-x-8 text-sm font-medium">
+<a class="text-slate-600 hover:text-blue-600 transition-colors py-5" href="#">Home</a>
+<a class="text-slate-600 hover:text-blue-600 transition-colors py-5" href="#">Dashboard</a>
+<a class="text-blue-600 border-b-2 border-blue-600 py-5 font-semibold" href="#">Historical Data</a>
+<a class="text-slate-600 hover:text-blue-600 transition-colors py-5" href="#">Predictions</a>
+<a class="text-slate-600 hover:text-blue-600 transition-colors py-5" href="#">About</a>
+</nav>
+<!-- Right Location Dropdown Pill -->
+<div class="flex items-center">
+<button class="flex items-center gap-2 bg-white hover:bg-slate-50 border border-slate-300 rounded-lg px-3.5 py-1.5 text-sm font-medium text-slate-700 shadow-xs transition" type="button">
+<svg class="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Pune, Maharashtra</span>
+<svg class="w-3.5 h-3.5 text-slate-500 ml-0.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+</div>
+</header>
+<!-- END: MainHeader -->
+<!-- BEGIN: MainContent -->
+<main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-10">
+<!-- Page Title & Description -->
+<div class="mb-6">
+<div class="flex items-center gap-3">
+<!-- Blue bar chart icon -->
+<div class="text-blue-600">
+<svg class="w-8 h-8" fill="currentColor" viewbox="0 0 24 24">
+<rect height="9" rx="1" width="4" x="3" y="12"></rect>
+<rect height="14" rx="1" width="4" x="10" y="7"></rect>
+<rect height="18" rx="1" width="4" x="17" y="3"></rect>
+</svg>
+</div>
+<h1 class="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">Historical Data</h1>
+</div>
+<p class="mt-1 text-sm text-slate-500 pl-11">View past groundwater level records for the selected station.</p>
+</div>
+<!-- BEGIN: FiltersBar -->
+<section class="bg-white rounded-xl shadow-xs border border-slate-200/90 p-4 mb-6" data-purpose="filters-section">
+<div class="flex flex-col lg:flex-row items-stretch lg:items-end justify-between gap-4">
+<!-- Selection Filters -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-3 flex-1">
+<!-- State Selector -->
+<div>
+<label class="block text-xs font-semibold text-slate-700 mb-1">State</label>
+<div class="relative">
+<select class="w-full appearance-none bg-white border border-slate-300 rounded-lg py-2 pl-3 pr-8 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<option>Maharashtra</option>
+<option>Karnataka</option>
+<option>Gujarat</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- District Selector -->
+<div>
+<label class="block text-xs font-semibold text-slate-700 mb-1">District</label>
+<div class="relative">
+<select class="w-full appearance-none bg-white border border-slate-300 rounded-lg py-2 pl-3 pr-8 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<option>Pune</option>
+<option>Mumbai</option>
+<option>Nagpur</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</div>
+<!-- Station Selector -->
+<div>
+<label class="block text-xs font-semibold text-slate-700 mb-1">Station</label>
+<div class="relative">
+<select class="w-full appearance-none bg-white border border-slate-300 rounded-lg py-2 pl-3 pr-8 text-sm font-medium text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+<option>Pune (Station 1234)</option>
+<option>Haveli (Station 5678)</option>
+<option>Kothrud (Station 9012)</option>
+</select>
+<div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-slate-500">
+<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+</div>
+</div>
+</div>
+<!-- Search Button and Date Range Selector -->
+<div class="flex items-center gap-3">
+<!-- Search Button -->
+<button class="inline-flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-5 py-2 rounded-lg shadow-xs transition duration-150 ease-in-out cursor-pointer" type="button">
+<svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+<span>Search</span>
+</button>
+<!-- Date Range Dropdown Pill -->
+<div class="relative">
+<button class="flex items-center gap-2.5 bg-white border border-slate-300 rounded-lg px-3.5 py-2 text-sm font-medium text-slate-700 hover:bg-slate-50 transition shadow-xs" type="button">
+<svg class="w-4 h-4 text-slate-600" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+<span>Last 1 Year</span>
+<svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M19 9l-7 7-7-7" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</button>
+</div>
+</div>
+</div>
+</section>
+<!-- END: FiltersBar -->
+<!-- BEGIN: GroundwaterChartCard -->
+<section class="bg-white rounded-xl shadow-xs border border-slate-200/90 p-5 mb-6" data-purpose="chart-container">
+<!-- Card Header -->
+<div class="flex flex-col sm:flex-row sm:items-center justify-between pb-4 gap-3">
+<!-- Title with waves icon -->
+<div class="flex items-center gap-2.5">
+<div class="text-blue-500">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M3 10c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 7 0M3 15c2.5-3 4.5-3 7 0s4.5 3 7 0 4.5-3 7 0" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path>
+</svg>
+</div>
+<h2 class="text-base sm:text-lg font-bold text-slate-900">Historical Groundwater Levels</h2>
+</div>
+<!-- Legend -->
+<div class="flex items-center gap-2 text-xs font-semibold text-slate-700 bg-slate-50/70 border border-slate-100 rounded-md px-2.5 py-1">
+<div class="flex items-center">
+<span class="w-4 h-0.5 bg-blue-600 inline-block"></span>
+<span class="w-2.5 h-2.5 bg-blue-600 rounded-full -ml-1.5 inline-block"></span>
+<span class="w-4 h-0.5 bg-blue-600 -ml-0.5 inline-block"></span>
+</div>
+<span>Water Level (m BGL)</span>
+</div>
+</div>
+<!-- Chart Display Area -->
+<div class="relative w-full h-[320px] pt-2">
+<canvas id="groundwaterChart"></canvas>
+</div>
+</section>
+<!-- END: GroundwaterChartCard -->
+<!-- BEGIN: DataTableCard -->
+<section class="bg-white rounded-xl shadow-xs border border-slate-200/90 overflow-hidden" data-purpose="table-container">
+<!-- Table Card Header -->
+<div class="px-5 py-4 flex items-center gap-2.5">
+<div class="text-blue-600">
+<svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24">
+<path d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4m0 5c0 2.21-3.582 4-8 4s-8-1.79-8-4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path>
+</svg>
+</div>
+<h2 class="text-base sm:text-lg font-bold text-slate-900">Data Records</h2>
+</div>
+<!-- Table -->
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-blue-50/70 border-y border-blue-100/80">
+<th class="py-3 px-6 text-xs font-bold text-slate-800 tracking-normal w-1/3" scope="col">Date</th>
+<th class="py-3 px-6 text-xs font-bold text-slate-800 tracking-normal w-1/3" scope="col">Water Level (m BGL)</th>
+<th class="py-3 px-6 text-xs font-bold text-slate-800 tracking-normal w-1/3" scope="col">Rainfall (mm)</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-slate-100 text-sm font-medium text-slate-700">
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 Oct 2025</td>
+<td class="py-3 px-6">14.8</td>
+<td class="py-3 px-6">0</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 Sep 2025</td>
+<td class="py-3 px-6">15.1</td>
+<td class="py-3 px-6">8</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 Aug 2025</td>
+<td class="py-3 px-6">15.3</td>
+<td class="py-3 px-6">12</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 Jul 2025</td>
+<td class="py-3 px-6">15.6</td>
+<td class="py-3 px-6">45</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 Jun 2025</td>
+<td class="py-3 px-6">16.2</td>
+<td class="py-3 px-6">72</td>
+</tr>
+<tr class="hover:bg-slate-50/60 transition-colors">
+<td class="py-3 px-6">15 May 2025</td>
+<td class="py-3 px-6">17.1</td>
+<td class="py-3 px-6">96</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<!-- END: DataTableCard -->
+</main>
+<!-- END: MainContent -->
+<!-- BEGIN: ChartRenderingScript -->
+<script data-purpose="chart-setup">
+    document.addEventListener("DOMContentLoaded", function () {
+      const ctx = document.getElementById('groundwaterChart').getContext('2d');
+
+      // Create subtle vertical gradient matching the UI screenshot
+      const gradient = ctx.createLinearGradient(0, 0, 0, 280);
+      gradient.addColorStop(0, 'rgba(59, 130, 246, 0.22)');
+      gradient.addColorStop(1, 'rgba(239, 246, 255, 0.05)');
+
+      // Groundwater levels in m BGL (inverted axis so 0 is surface / top, deeper is lower)
+      const dataPoints = [12.8, 14.9, 17.0, 18.8, 16.5, 14.5, 12.6, 10.4, 10.3, 11.4, 12.2];
+      const labels = [
+        'Nov 2024', 'Dec 2024', 'Jan 2025', 'Feb 2025', 'Mar 2025', 
+        'Apr 2025', 'May 2025', 'Jun 2025', 'Aug 2025', 'Sep 2025', 'Oct 2025'
+      ];
+
+      new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Water Level (m BGL)',
+            data: dataPoints,
+            borderColor: '#2563EB',
+            borderWidth: 2,
+            backgroundColor: gradient,
+            fill: 'end', // fill towards bottom / higher depth value
+            tension: 0.35,
+            pointBackgroundColor: '#2563EB',
+            pointBorderColor: '#FFFFFF',
+            pointBorderWidth: 1.5,
+            pointRadius: 4.5,
+            pointHoverRadius: 6,
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              display: false
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  return context.parsed.y + ' m BGL';
+                }
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: {
+                display: true,
+                color: 'rgba(226, 232, 240, 0.6)',
+                drawBorder: false
+              },
+              ticks: {
+                color: '#64748B',
+                font: {
+                  size: 11,
+                  family: 'Inter'
+                }
+              }
+            },
+            y: {
+              reverse: true, // In groundwater, 0 is at surface (top), deeper down is higher value
+              min: 0,
+              max: 25,
+              ticks: {
+                stepSize: 5,
+                color: '#64748B',
+                font: {
+                  size: 11,
+                  family: 'Inter'
+                }
+              },
+              grid: {
+                color: 'rgba(226, 232, 240, 0.6)',
+                drawBorder: false
+              },
+              title: {
+                display: true,
+                text: 'Water Level (m BGL)',
+                color: '#64748B',
+                font: {
+                  size: 11.5,
+                  weight: 'normal',
+                  family: 'Inter'
+                }
+              }
+            }
+          }
+        }
+      });
+    });
+  </script>
+<!-- END: ChartRenderingScript -->
+</body></html>
