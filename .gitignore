@@ -1,0 +1,32 @@
+# Local configuration — never commit a real .env
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+backend/.venv/
+backend/.venv-install.log
+
+# Local SQLite state (preferences + forecast cache), not a data source of truth
+.hydrasense.db
+*.db-journal
+
+# Node / Vite
+node_modules/
+dist/
+.vite/
+npm-debug.log*
+
+# Editors and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# Freebuff workspace marker
+.freebuff/

@@ -1,57 +1,18 @@
-import { Link } from 'react-router-dom'
+import SiteLayout from '../components/SiteLayout'
 
 export default function About() {
   return (
-    <div className="page-about bg-[#e9f2fb] min-h-screen text-[#1e293b] antialiased p-3 sm:p-6 lg:p-8 flex justify-center items-center">
-{/* BEGIN: MainContainer */}
-{/* Main white framed application window replicating the interface design */}
-<div className="w-full max-w-[1240px] bg-white rounded-2xl shadow-xl shadow-blue-900/5 border border-slate-100 overflow-hidden flex flex-col">
-{/* BEGIN: TopNavigation */}
-<header className="w-full border-b border-slate-100 bg-white px-6 sm:px-10 py-4 flex items-center justify-between" data-purpose="top-navigation">
-{/* Left: Brand Logo */}
-<div className="flex items-center space-x-2.5">
-<svg className="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.5" viewBox="0 0 24 24">
-<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
-</svg>
-<span className="text-2xl font-bold tracking-tight text-[#0f172a]">Hydra<span className="text-[#0284c7]">Sense</span></span>
-</div>
-{/* Center: Navigation Links */}
-<nav className="hidden md:flex items-center space-x-8 text-[15px] font-medium text-[#475569]">
-<Link className="hover:text-blue-600 transition-colors py-1" to="/">Home</Link>
-<Link className="hover:text-blue-600 transition-colors py-1" to="/dashboard">Dashboard</Link>
-<Link className="hover:text-blue-600 transition-colors py-1" to="/historical-data">Historical Data</Link>
-<Link className="hover:text-blue-600 transition-colors py-1" to="/predictions">Predictions</Link>
-<div className="relative py-1">
-<Link className="text-[#0284c7] font-semibold" to="/about">About</Link>
-<span className="absolute bottom-[-16px] left-0 w-full h-[3px] bg-[#0284c7] rounded-full"></span>
-</div>
-</nav>
-{/* Right: Location Pill Dropdown */}
-<div className="flex items-center">
-<button className="flex items-center space-x-2 px-3.5 py-1.5 text-xs sm:text-sm font-medium text-slate-700 bg-white border border-slate-200 rounded-lg hover:bg-slate-50 shadow-sm transition" type="button">
-<svg className="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-<path d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" strokeLinecap="round" strokeLinejoin="round"></path>
-<path d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" strokeLinecap="round" strokeLinejoin="round"></path>
-</svg>
-<span className="whitespace-nowrap">Pune, Maharashtra</span>
-<svg className="w-3.5 h-3.5 text-slate-600 ml-0.5" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
-<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round"></path>
-</svg>
-</button>
-</div>
-</header>
-{/* END: TopNavigation */}
-{/* BEGIN: MainContent */}
-<main className="w-full p-6 sm:p-10 space-y-6 sm:space-y-8 bg-gradient-to-b from-white to-[#f7faff]">
+    <SiteLayout locationLabel="Select location">
+      <div className="space-y-6 sm:space-y-8">
 {/* BEGIN: HeroSection */}
 <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-blue-50/70 via-sky-50/40 to-blue-100/60 p-6 sm:p-10 flex flex-col md:flex-row items-center justify-between min-h-[220px]" data-purpose="hero-section">
 {/* Hero Text Details */}
 <div className="w-full md:w-3/5 z-10 space-y-3">
-<h1 className="text-3xl sm:text-4xl lg:text-[42px] font-extrabold tracking-tight text-[#0f172a] leading-tight">
-            About <span className="text-[#0284c7]">HydraSense</span>
+<h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-slate-900 leading-tight">
+            About <span className="text-brand-600">HydraSense</span>
 </h1>
 <p className="text-slate-600 text-base sm:text-lg max-w-xl font-normal leading-relaxed">
-            A simple system to monitor and predict groundwater levels using real DWLR data and machine learning.
+            A simple system to monitor and predict groundwater levels using DWLR groundwater data and machine learning.
           </p>
 </div>
 {/* Scenic Illustration Graphic */}
@@ -128,7 +89,7 @@ export default function About() {
 <div className="bg-white rounded-2xl border border-slate-100 p-8 flex flex-col items-center text-center shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition">
 {/* Icon Circle Container */}
 <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-5">
-<svg className="w-10 h-10 text-[#0284c7]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
+<svg className="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
 <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
 <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
 <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
@@ -136,14 +97,14 @@ export default function About() {
 </div>
 <h2 className="text-xl font-bold text-slate-900 mb-2">Real DWLR Data</h2>
 <p className="text-slate-600 text-sm leading-relaxed max-w-[240px]">
-            Uses government DWLR records for accurate analysis.
+            Works with DWLR groundwater records from the project dataset.
           </p>
 </div>
 {/* Pillar 2: Machine Learning */}
 <div className="bg-white rounded-2xl border border-slate-100 p-8 flex flex-col items-center text-center shadow-[0_2px_12px_rgba(0,0,0,0.03)] hover:shadow-md transition">
 {/* Icon Circle Container */}
 <div className="w-20 h-20 rounded-full bg-blue-50 flex items-center justify-center mb-5">
-<svg className="w-10 h-10 text-[#0284c7]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
+<svg className="w-10 h-10 text-brand-600" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
 {/* Stylized Brain / Neural Net Icon */}
 <path d="M9.5 2a3.5 3.5 0 0 0-3.5 3.5c0 .3.04.58.11.85A4.5 4.5 0 0 0 4 10.5a4.48 4.48 0 0 0 1.5 3.35A4 4 0 0 0 9 20h.5"></path>
 <path d="M14.5 2a3.5 3.5 0 0 1 3.5 3.5c0 .3-.04.58-.11.85A4.5 4.5 0 0 1 20 10.5a4.48 4.48 0 0 1-1.5 3.35A4 4 0 0 1 15 20h-.5"></path>
@@ -182,7 +143,7 @@ export default function About() {
 {/* Card 1: Data Source */}
 <div className="bg-[#f0f7fe] rounded-2xl p-6 sm:px-8 sm:py-6 flex items-start sm:items-center space-x-5 border border-blue-50/80 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
 <div className="w-14 h-14 rounded-2xl bg-blue-100/70 flex items-center justify-center shrink-0">
-<svg className="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+<svg className="w-7 h-7 text-brand-600" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
 <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
 <polyline points="14 2 14 8 20 8"></polyline>
 <line x1="16" x2="8" y1="13" y2="13"></line>
@@ -194,14 +155,14 @@ export default function About() {
 <h3 className="text-lg font-bold text-slate-900">Data Source</h3>
 <p className="text-slate-600 text-sm sm:text-[15px] leading-relaxed">
               DWLR (Dynamic Ground Water Level Records)<br className="hidden sm:inline"/>
-              Central Ground Water Board (CGWB), Government of India
+              Dataset: DWLR_Dataset_2023.csv · official source and licensing pending confirmation
             </p>
 </div>
 </div>
 {/* Card 2: Our Goal */}
 <div className="bg-white rounded-2xl p-6 sm:px-8 sm:py-6 flex items-start sm:items-center space-x-5 border border-slate-100 shadow-[0_2px_8px_rgba(0,0,0,0.02)]">
 <div className="w-14 h-14 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-<svg className="w-7 h-7 text-[#0284c7]" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
+<svg className="w-7 h-7 text-brand-600" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" viewBox="0 0 24 24">
 <circle cx="12" cy="12" r="10"></circle>
 <circle cx="12" cy="12" r="6"></circle>
 <circle cx="12" cy="12" r="2"></circle>
@@ -216,10 +177,7 @@ export default function About() {
 </div>
 </section>
 {/* END: DetailStackedCards */}
-</main>
-{/* END: MainContent */}
-</div>
-{/* END: MainContainer */}
-    </div>
+      </div>
+    </SiteLayout>
   )
 }

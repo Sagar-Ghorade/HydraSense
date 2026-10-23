@@ -1,53 +1,12 @@
 import { Link } from 'react-router-dom'
+import SiteLayout from '../components/SiteLayout'
 
 export default function Home() {
   return (
-    <div className="page-home bg-white text-slate-800 antialiased min-h-screen flex flex-col justify-between selection:bg-blue-100 selection:text-blue-700">
-{/* BEGIN: MainHeader */}
-<header className="w-full bg-transparent px-8 lg:px-14 py-4 flex items-center justify-between z-20">
-{/* Brand Logo */}
-<Link className="flex items-center gap-2.5 text-decoration-none group" data-purpose="brand-logo" to="/">
-<div className="w-8 h-8 flex items-center justify-center text-blue-600">
-{/* Water droplet custom icon */}
-<svg className="w-7 h-7 drop-shadow-sm" fill="none" viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
-<path d="M16 3C16 3 6 15.2 6 21.5C6 26.7467 10.4772 31 16 31C21.5228 31 26 26.7467 26 21.5C26 15.2 16 3 16 3Z" stroke="#0066FF" strokeLinecap="round" strokeLinejoin="round" strokeWidth="3"></path>
-<path d="M16 26.5C18.4853 26.5 20.5 24.4853 20.5 22C20.5 19.5 18 16 16 16C14 16 11.5 19.5 11.5 22C11.5 24.4853 13.5147 26.5 16 26.5Z" fill="#0066FF"></path>
-</svg>
-</div>
-<span className="text-2xl font-extrabold tracking-tight text-[#0b1c3f]">Hydra<span className="text-[#0066FF]">Sense</span></span>
-</Link>
-{/* Navigation Menu */}
-<nav className="hidden md:flex items-center gap-9 text-[15px] font-medium" data-purpose="main-nav">
-<div className="relative py-1">
-<Link className="text-blue-600 font-semibold tracking-wide" to="/">Home</Link>
-<div className="absolute bottom-0 left-0 right-0 h-[2.5px] bg-blue-600 rounded-full"></div>
-</div>
-<Link className="text-slate-600 hover:text-blue-600 transition-colors" to="/dashboard">Dashboard</Link>
-<Link className="text-slate-600 hover:text-blue-600 transition-colors" to="/historical-data">Historical Data</Link>
-<Link className="text-slate-600 hover:text-blue-600 transition-colors" to="/predictions">Predictions</Link>
-<Link className="text-slate-600 hover:text-blue-600 transition-colors" to="/about">About</Link>
-</nav>
-{/* Location Selector */}
-<div className="flex items-center" data-purpose="location-picker">
-<button className="flex items-center gap-2 bg-white/90 backdrop-blur-sm border border-slate-300 hover:border-slate-400 px-4 py-2 rounded-xl text-slate-800 text-[13.5px] font-semibold shadow-sm transition-all hover:bg-slate-50" type="button">
-{/* Map Pin Icon */}
-<svg className="w-4 h-4 text-slate-700" fill="none" stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="2.2" viewBox="0 0 24 24">
-<path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-<circle cx="12" cy="10" r="3"></circle>
-</svg>
-<span>Pune, Maharashtra</span>
-{/* Dropdown Chevron */}
-<svg className="w-3.5 h-3.5 ml-0.5 text-slate-600 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-<path d="M19 9l-7 7-7-7" strokeLinecap="round" strokeLinejoin="round"></path>
-</svg>
-</button>
-</div>
-</header>
-{/* END: MainHeader */}
-{/* BEGIN: HeroSection */}
-<main className="relative w-full flex-grow flex flex-col justify-between hero-bg pt-6 pb-8 overflow-hidden">
+    <SiteLayout locationLabel="Select location">
+      <section className="hero-bg relative overflow-hidden rounded-3xl border border-slate-200/70 px-5 py-8 sm:px-8 sm:py-10 lg:px-10">
 {/* Top Content Area with split text & vector landscape illustration */}
-<div className="max-w-[1440px] mx-auto px-8 lg:px-14 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center relative z-10">
+<div className="relative z-10 grid grid-cols-1 items-center gap-8 lg:grid-cols-12">
 {/* Left Column: Headline and Call-to-actions */}
 <div className="lg:col-span-5 flex flex-col items-start pt-2 lg:pt-6 z-10" data-purpose="hero-content">
 {/* Subtitle badge */}
@@ -55,33 +14,33 @@ export default function Home() {
           Groundwater Intelligence
         </span>
 {/* Headline */}
-<h1 className="text-4xl sm:text-[46px] lg:text-[52px] font-extrabold text-[#0D1829] leading-[1.12] tracking-tight mb-5">
+<h1 className="text-4xl sm:text-[46px] lg:text-[52px] font-extrabold text-slate-900 leading-[1.12] tracking-tight mb-5">
           Monitor<br/>
           Groundwater<br/>
           today for a<br/>
-<span className="text-[#0066FF]">Sustainable Tomorrow</span>
+<span className="text-brand-600">Sustainable Tomorrow</span>
 </h1>
 {/* Subparagraph */}
 <p className="text-slate-600 text-base sm:text-[15.5px] leading-relaxed max-w-[440px] mb-8 font-normal">
-          HydraSense uses real DWLR data and machine learning to help you understand, analyze and predict groundwater levels for better water management.
+          HydraSense uses DWLR groundwater records and machine learning to help you understand, analyze and predict groundwater levels for better water management.
         </p>
 {/* CTA Action Buttons */}
 <div className="flex flex-wrap items-center gap-3.5" data-purpose="hero-actions">
 {/* Primary Button */}
-<a className="inline-flex items-center justify-center gap-2 bg-[#0066FF] hover:bg-[#0052cc] text-white font-semibold text-[15px] px-6 py-3.5 rounded-xl shadow-[0_4px_14px_rgba(0,102,255,0.35)] transition-all transform active:scale-95" href="#get-started">
+<Link className="inline-flex items-center justify-center gap-2 bg-brand-600 hover:bg-brand-700 text-white font-semibold text-[15px] px-6 py-3.5 rounded-xl shadow-[0_4px_14px_rgba(0,102,255,0.35)] transition-all transform active:scale-95" to="/dashboard">
 <span>Get Started</span>
 <svg className="w-4 h-4 stroke-[2.5]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 <path d="M14 5l7 7m0 0l-7 7m7-7H3" strokeLinecap="round" strokeLinejoin="round"></path>
 </svg>
-</a>
+</Link>
 {/* Secondary Button */}
-<a className="inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-800 font-semibold text-[15px] px-6 py-3.5 rounded-xl border border-slate-200/90 shadow-sm transition-all active:scale-95" href="#learn-more">
+<Link className="inline-flex items-center justify-center bg-white hover:bg-slate-50 text-slate-800 font-semibold text-[15px] px-6 py-3.5 rounded-xl border border-slate-200/90 shadow-sm transition-all active:scale-95" to="/about">
             Learn More
-          </a>
+          </Link>
 </div>
 </div>
 {/* Right Column: Vector Illustration of Landscape & Geological Cross-section */}
-<div className="lg:col-span-7 relative w-full h-[360px] sm:h-[420px] lg:h-[460px] flex items-center justify-center hero-illustration-wrapper" data-purpose="hero-illustration">
+<div className="relative flex h-[360px] w-full items-center justify-center sm:h-[420px] lg:col-span-7 lg:h-[460px]" data-purpose="hero-illustration">
 <svg className="w-full h-full select-none" fill="none" viewBox="0 0 850 500" xmlns="http://www.w3.org/2000/svg">
 <defs>
 {/* Sky and Sun Gradients */}
@@ -253,22 +212,21 @@ export default function Home() {
 </div>
 {/* BEGIN: BottomFeatureCards */}
 {/* 3 High fidelity responsive bottom cards */}
-<div className="max-w-[1440px] mx-auto px-8 lg:px-14 w-full mt-6 z-20" data-purpose="features-grid">
-<div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+<div className="mt-8 grid grid-cols-1 gap-5 md:grid-cols-3" data-purpose="features-grid">
 {/* Card 1: Real DWLR Data */}
 <div className="bg-[#EFF7FF]/90 border border-[#D8EBFF] rounded-2xl p-5 flex items-center gap-4.5 shadow-sm hover:shadow-md transition-shadow" data-purpose="feature-card">
 {/* Icon Container (Light Blue) */}
 <div className="w-14 h-14 rounded-2xl bg-[#DDF0FF] flex items-center justify-center flex-shrink-0">
 {/* Blue Bar Chart Icon */}
-<svg className="w-7 h-7 text-[#0066FF]" fill="currentColor" viewBox="0 0 24 24">
+<svg className="w-7 h-7 text-brand-600" fill="currentColor" viewBox="0 0 24 24">
 <rect height="8" rx="1.5" width="4.5" x="3" y="13"></rect>
 <rect height="13" rx="1.5" width="4.5" x="9.75" y="8"></rect>
 <rect height="18" rx="1.5" width="4.5" x="16.5" y="3"></rect>
 </svg>
 </div>
 <div>
-<h3 className="font-bold text-[#0F1E36] text-[16.5px] leading-snug">Real DWLR Data</h3>
-<p className="text-slate-500 text-[13.5px] leading-normal mt-0.5">Based on government monitoring records</p>
+<h3 className="font-bold text-slate-900 text-[16.5px] leading-snug">Real DWLR Data</h3>
+<p className="text-slate-500 text-[13.5px] leading-normal mt-0.5">Built on DWLR groundwater records</p>
 </div>
 </div>
 {/* Card 2: Smart Predictions */}
@@ -289,7 +247,7 @@ export default function Home() {
 </svg>
 </div>
 <div>
-<h3 className="font-bold text-[#0F1E36] text-[16.5px] leading-snug">Smart Predictions</h3>
+<h3 className="font-bold text-slate-900 text-[16.5px] leading-snug">Smart Predictions</h3>
 <p className="text-slate-500 text-[13.5px] leading-normal mt-0.5">Using machine learning models</p>
 </div>
 </div>
@@ -304,15 +262,13 @@ export default function Home() {
 </svg>
 </div>
 <div>
-<h3 className="font-bold text-[#0F1E36] text-[16.5px] leading-snug">Sustainable Impact</h3>
+<h3 className="font-bold text-slate-900 text-[16.5px] leading-snug">Sustainable Impact</h3>
 <p className="text-slate-500 text-[13.5px] leading-normal mt-0.5">Supports better water resource management</p>
 </div>
 </div>
 </div>
-</div>
 {/* END: BottomFeatureCards */}
-</main>
-{/* END: HeroSection */}
-    </div>
+      </section>
+    </SiteLayout>
   )
 }

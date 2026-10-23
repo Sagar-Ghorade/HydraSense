@@ -10,10 +10,13 @@ Design notes
 * The DWLR file contains a single daily series and has **no** state, district or
   station columns. Location selection is handled by the API as an explicitly
   illustrative mapping onto this one series (:mod:`backend.main`).
-* Every feature is known at the *forecast origin* (the last observation date).
-  Future rainfall/temperature are never used, because they are not observed yet.
-  The only future information used is the calendar day-of-year of the target
-  date, which is known in advance.
+* Every *dynamic* feature is known at the forecast origin (the last observation
+  date): future rainfall/temperature are never used, because they are not
+  observed yet. The only future information used is the calendar day-of-year of
+  the target date, which is known in advance. :func:`seasonality` must be applied
+  to the **target** date in both training and inference - encoding the origin
+  date at training time but the target date at inference time is a train/serve
+  skew that silently feeds the served model inputs it never saw while fitting.
 * The target is ``Water_Level_m``. The unit is taken from the dataset column
   name; the depth datum (whether the column is really below-ground-level) is not
   documented in the source file, so it is reported as unconfirmed rather than
@@ -38,8 +41,11 @@ DO_COLUMN = "Dissolved_Oxygen_mg_L"
 TARGET_UNIT = "m"
 UNIT_CONFIRMED = False
 
-#: Frozen feature order. The API validates this against the saved artifact.
-FEATURE_ORDER: tuple[str, ...] = (
+#: Seasonality columns. They describe the *target* date, not the origin.
+SEASONAL_FEATURES: tuple[str, ...] = ("doy_sin", "doy_cos")
+
+#: Features that depend only on data observed up to the forecast origin.
+ORIGIN_FEATURES: tuple[str, ...] = (
     "wl_lag1",
     "wl_lag2",
     "wl_lag3",
@@ -51,24 +57,24 @@ FEATURE_ORDER: tuple[str, ...] = (
     "wl_roll7_std",
     "wl_diff1",
     "wl_diff7",
+    "wl_slope7",
+    "wl_slope30",
     "rain_lag1",
     "rain_roll7_sum",
     "rain_roll30_sum",
     "temp_lag1",
     "temp_roll7_mean",
     "do_lag1",
-    "doy_sin",
-    "doy_cos",
 )
+
+#: Frozen feature order. The API validates this against the saved artifact.
+FEATURE_ORDER: tuple[str, ...] = ORIGIN_FEATURES + SEASONAL_FEATURES
 
 MIN_HISTORY_DAYS = 30  # rows required before an origin can produce features
 
 #: Target modes understood by :func:`build_supervised`.
 TARGET_MODE_DELTA = "delta"
 TARGET_MODE_LEVEL = "level"
-
-#: Horizons trained and evaluated by ``train.py`` (days ahead).
-EVALUATED_HORIZONS = tuple(range(1, 31))
 
 
 @dataclass
@@ -128,13 +134,22 @@ def clean(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
     work = df.copy()
     work[DATE_COLUMN] = pd.to_datetime(work[DATE_COLUMN], errors="coerce")
     work = work.dropna(subset=[DATE_COLUMN])
-    work = work.sort_values(DATE_COLUMN)
-    report.non_monotonic_dates = bool(work[DATE_COLUMN].diff().dropna().lt(pd.Timedelta(0)).any())
+    # Must be measured before sorting: after sort_values() the dates are
+    # monotonic by construction and the flag could never be true.
+    report.non_monotonic_dates = bool(
+        work[DATE_COLUMN].diff().dropna().lt(pd.Timedelta(0)).any()
+    )
 
+    # Drop duplicates *before* sorting. sort_values() uses an unstable sort, so
+    # equal dates could otherwise end up in either order and "keep the first"
+    # would mean "keep whichever happened to sort first" instead of "keep the
+    # first record in the source file".
     before = len(work)
     work = work.drop_duplicates(subset=[DATE_COLUMN], keep="first")
     report.duplicate_dates_removed = before - len(work)
     report.rows_after_drop_duplicate_dates = len(work)
+
+    work = work.sort_values(DATE_COLUMN, kind="stable")
 
     target_numeric = pd.to_numeric(work[TARGET_COLUMN], errors="coerce")
     dropped = int(target_numeric.isna().sum())
@@ -171,10 +186,14 @@ def clean(df: pd.DataFrame) -> tuple[pd.DataFrame, CleaningReport]:
 
 
 def add_features(df: pd.DataFrame, do_fill_value: float | None = None) -> pd.DataFrame:
-    """Add origin-known features.
+    """Add origin-known (non-seasonal) features.
 
     ``do_fill_value`` must come from training data (a train-only median) so that
     imputing the dissolved-oxygen column cannot leak information across splits.
+
+    Seasonality is deliberately *not* added here: it belongs to the target date
+    and is added per horizon by :func:`build_supervised` and :func:`inference_row`
+    through :func:`seasonality`, so both paths use identical inputs.
     """
     work = df.copy()
     wl = work[TARGET_COLUMN].astype(float)
@@ -188,6 +207,12 @@ def add_features(df: pd.DataFrame, do_fill_value: float | None = None) -> pd.Dat
     work["wl_roll7_std"] = wl.rolling(7).std()
     work["wl_diff1"] = wl - wl.shift(1)
     work["wl_diff7"] = wl - wl.shift(7)
+    # Explicit local trend in metres per day. A model can then scale a measured
+    # slope by the horizon instead of having to infer the trend indirectly from
+    # level differences, which is what makes the regularised linear candidate
+    # able to follow the annual rise.
+    work["wl_slope7"] = (wl - wl.shift(7)) / 7.0
+    work["wl_slope30"] = (wl - wl.shift(30)) / 30.0
 
     if RAINFALL_COLUMN in work.columns:
         rain = pd.to_numeric(work[RAINFALL_COLUMN], errors="coerce")
@@ -206,11 +231,24 @@ def add_features(df: pd.DataFrame, do_fill_value: float | None = None) -> pd.Dat
             do = do.fillna(float(do_fill_value))
         work["do_lag1"] = do
 
-    doy = work[DATE_COLUMN].dt.dayofyear.astype(float)
-    work["doy_sin"] = np.sin(2 * np.pi * doy / 365.25)
-    work["doy_cos"] = np.cos(2 * np.pi * doy / 365.25)
-
     return work
+
+
+def seasonality(dates) -> pd.DataFrame:
+    """Sine/cosine day-of-year encoding of the given (target) dates.
+
+    The calendar date of a forecast target is known when the forecast is
+    issued, so this is not future information. It must be computed from the
+    *target* date in training and inference alike; see the module docstring.
+    """
+    values = pd.to_datetime(pd.Series(np.asarray(dates).ravel()))
+    doy = values.dt.dayofyear.astype(float)
+    return pd.DataFrame(
+        {
+            "doy_sin": np.sin(2 * np.pi * doy / 365.25),
+            "doy_cos": np.cos(2 * np.pi * doy / 365.25),
+        }
+    )
 
 
 def train_do_fill_value(df: pd.DataFrame, train_origins: np.ndarray) -> float:
@@ -250,6 +288,9 @@ def build_supervised(
 ) -> Supervised:
     """Build direct multi-step training rows for ``horizon`` days ahead.
 
+    Seasonality features are computed from each row's *target* date, matching
+    :func:`inference_row` exactly.
+
     ``target_mode``:
       * ``delta`` (default) - predict the *change* from the origin level. Water
         level here trends strongly within the year, so held-out targets fall
@@ -277,9 +318,14 @@ def build_supervised(
     origins_idx = np.array([r[0] for r in rows])
     target_idx = np.array([r[1] for r in rows])
 
-    X = featured.loc[origins_idx, list(FEATURE_ORDER)].copy()
+    X = featured.loc[origins_idx, list(ORIGIN_FEATURES)].copy()
     X.index = origins_idx
     X = X.astype(float)
+
+    season = seasonality(featured.loc[target_idx, DATE_COLUMN].to_numpy())
+    season.index = origins_idx
+    X = pd.concat([X, season[list(SEASONAL_FEATURES)]], axis=1)[list(FEATURE_ORDER)]
+
     complete = X.notna().all(axis=1)
     X = X.loc[complete]
     keep = X.index.to_numpy()
@@ -301,58 +347,20 @@ def build_supervised(
     )
 
 
-#: Fixed evaluation windows (days of target dates, not of origins).
-DEFAULT_TEST_DAYS = 60
-DEFAULT_VAL_DAYS = 60
-MIN_TRAIN_ORIGINS = 60
-
-
-def split_supervised(
-    sup: "Supervised",
-    dataset_end: pd.Timestamp,
-    test_days: int = DEFAULT_TEST_DAYS,
-    val_days: int = DEFAULT_VAL_DAYS,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
-    """Chronologically split in terms of the *target date* of each row.
-
-    A direct multi-step model has fewer usable origins for larger horizons, so a
-    split on origin positions would move the evaluation window every horizon and
-    make horizons incomparable. Splitting on target dates keeps every horizon
-    scored on the same calendar window: the last ``test_days`` of the series are
-    the test targets, the ``val_days`` before them are the validation targets,
-    and everything earlier is training data.
-    """
-    target_dates = pd.to_datetime(sup.target_dates)
-    test_start = pd.Timestamp(dataset_end).normalize() - pd.Timedelta(days=test_days - 1)
-    val_start = test_start - pd.Timedelta(days=val_days)
-
-    test_idx = np.where(target_dates >= test_start)[0]
-    val_idx = np.where((target_dates >= val_start) & (target_dates < test_start))[0]
-    train_idx = np.where(target_dates < val_start)[0]
-
-    if len(train_idx) < MIN_TRAIN_ORIGINS or len(val_idx) == 0 or len(test_idx) == 0:
-        raise ValueError(
-            f"Not enough rows for fixed-window splits at horizon {sup.horizon}: "
-            f"train={len(train_idx)} val={len(val_idx)} test={len(test_idx)}"
-        )
-    return train_idx, val_idx, test_idx
-
-
 def inference_row(df: pd.DataFrame, horizon: int, do_fill_value: float) -> pd.Series:
     """Feature row for a forecast issued from the most recent observation.
 
-    Reuses :func:`add_features` so the values are produced by exactly the same
-    code path as training rows.
+    Built from the same helpers as training rows, so the two paths cannot drift
+    apart in column order, values or seasonality reference date.
     """
     featured = add_features(df, do_fill_value=do_fill_value)
     last = len(df) - 1
-    row = featured.loc[last, list(FEATURE_ORDER)].astype(float)
+    row = featured.loc[last, list(ORIGIN_FEATURES)].astype(float)
 
     # Day-of-year of the *target* date, which is known in advance.
     target_date = pd.Timestamp(df[DATE_COLUMN].iloc[last]) + pd.Timedelta(days=horizon)
-    doy = float(target_date.dayofyear)
-    row["doy_sin"] = np.sin(2 * np.pi * doy / 365.25)
-    row["doy_cos"] = np.cos(2 * np.pi * doy / 365.25)
+    season = seasonality([target_date]).iloc[0]
+    row = pd.concat([row, season[list(SEASONAL_FEATURES)]])[list(FEATURE_ORDER)]
 
     missing = row[row.isna()]
     if not missing.empty:
@@ -362,29 +370,11 @@ def inference_row(df: pd.DataFrame, horizon: int, do_fill_value: float) -> pd.Se
     return row
 
 
-def persistence_baseline(df: pd.DataFrame, horizon: int) -> Supervised:
-    """Naive baseline: carry the level observed at the origin forward ``horizon`` days."""
-    wl = df[TARGET_COLUMN].astype(float)
-    origins = np.arange(0, len(df) - horizon)
-    target_idx = origins + horizon
-    origin_levels = wl.iloc[origins].reset_index(drop=True)
-    levels = wl.iloc[target_idx].reset_index(drop=True)
-    return Supervised(
-        X=pd.DataFrame(index=pd.RangeIndex(len(origins))),
-        y=levels,
-        origins=df[DATE_COLUMN].iloc[origins].reset_index(drop=True),
-        target_dates=df[DATE_COLUMN].iloc[target_idx].reset_index(drop=True),
-        horizon=horizon,
-        origin_levels=origin_levels,
-        target_mode=TARGET_MODE_LEVEL,
-    )
-
-
-def to_levels(origin_levels: pd.Series, predicted: np.ndarray, target_mode: str) -> np.ndarray:
-    """Convert model output into absolute levels."""
+def to_levels(origin_levels, predicted: np.ndarray, target_mode: str) -> np.ndarray:
+    """Convert model output into absolute levels (accepts Series or array)."""
     predicted = np.asarray(predicted, dtype=float)
     if target_mode == TARGET_MODE_DELTA:
-        return origin_levels.to_numpy(dtype=float) + predicted
+        return np.asarray(origin_levels, dtype=float) + predicted
     return predicted
 
 

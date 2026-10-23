@@ -71,9 +71,14 @@ def get_preference(key: str, default: Optional[Any] = None) -> Any:
         row = conn.execute(
             "SELECT value FROM preferences WHERE key = ?", (key,)
         ).fetchone()
-        if row is None:
+        if row is None or not row["value"]:
             return default
-        return json.loads(row["value"]) if row["value"] else default
+        # Values are stored as plain strings, not always as JSON, so decoding
+        # must fall back to the raw text instead of raising.
+        try:
+            return json.loads(row["value"])
+        except (TypeError, ValueError):
+            return row["value"]
     finally:
         conn.close()
 
@@ -129,3 +134,4 @@ def get_cached_result(key: str, default: Optional[dict] = None) -> Optional[dict
         return result if result is not None else default
     finally:
         conn.close()
+        

@@ -3,72 +3,15 @@
 @tailwind utilities;
 
 /* ---------------------------------------------------------------------------
- * Page roots
+ * Shared page styling
  *
- * Every reference screen (stitch_pixel_perfect_ui_clone/<screen>/code.html) is a
- * standalone document: it sets `font-family` / `background-color` / `color`
- * on <body> through a <style> block, and puts Tailwind classes on <body>.
- *
- * In this SPA the original <body> classes are applied to the page root <div>,
- * and the per-screen <style> rules below are scoped to that same root. Values
- * are copied verbatim from the reference screens.
+ * All five screens render through `components/SiteLayout`, which supplies the
+ * page background, header, content width and typography. Only reusable visual
+ * helpers live here; the previous per-screen background/font overrides were
+ * removed so the pages cannot drift apart again.
  * ------------------------------------------------------------------------- */
 
-/* hydrasense_home --------------------------------------------------------- */
-.page-home {
-  font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
-  -webkit-font-smoothing: antialiased;
-}
-
+/* Soft gradient panel used by the Home hero. */
 .hero-bg {
-  background: linear-gradient(180deg, #E8F3FF 0%, #EDF6FF 65%, #FFFFFF 100%);
-}
-
-.hero-illustration-wrapper {
-  position: relative;
-}
-
-/* hydrasense_dashboard ---------------------------------------------------- */
-.page-dashboard {
-  background-color: #f1f6fc;
-  color: #1e293b;
-  font-family: 'Inter', sans-serif;
-}
-
-.page-dashboard .custom-shadow {
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
-}
-
-.map-pattern {
-  background-color: #f8fafc;
-  background-image:
-    radial-gradient(#e2e8f0 1.2px, transparent 1.2px),
-    linear-gradient(to right, #f1f5f9 1px, transparent 1px),
-    linear-gradient(to bottom, #f1f5f9 1px, transparent 1px);
-  background-size: 24px 24px, 48px 48px, 48px 48px;
-}
-
-/* hydrasense_historical_data ---------------------------------------------- */
-.page-historical {
-  font-family: 'Inter', sans-serif;
-  background-color: #f0f5fc;
-}
-
-/* hydrasense_predictions --------------------------------------------------
- * The screen also declares `background-color: #f1f6fd` on <body>, but the
- * `bg-[#edf3fb]` utility carried on the <body> classes wins, so the root here
- * only needs font + text colour.
- * ------------------------------------------------------------------------- */
-.page-predictions {
-  font-family: 'Plus Jakarta Sans', sans-serif;
-  color: #1e293b;
-}
-
-.page-predictions .custom-shadow {
-  box-shadow: 0 4px 20px -2px rgba(220, 228, 240, 0.6), 0 2px 6px -1px rgba(0, 0, 0, 0.04);
-}
-
-/* hydrasense_about ------------------------------------------------------- */
-.page-about {
-  font-family: 'Inter', sans-serif;
+  background: linear-gradient(180deg, #e8f3ff 0%, #edf6ff 65%, #ffffff 100%);
 }

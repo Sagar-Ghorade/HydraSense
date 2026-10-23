@@ -1,60 +1,80 @@
 # HydraSense frontend (React + Vite)
 
-Pixel-faithful React port of the five Stitch reference screens in
-`../stitch_pixel_perfect_ui_clone`. The reference markup, copy, class names and
-styling are reproduced verbatim — only the plumbing changed (routing, the
-Chart.js lifecycle, and Tailwind moved from the CDN to a local build).
+The React single-page app for HydraSense. It renders the five screens from the
+SRS (Home, Dashboard, Historical Data, Predictions, About) and reads all data
+from the FastAPI backend over HTTP.
+
+The pages were initially ported from the Stitch references in
+`../stitch_pixel_perfect_ui_clone`; they now share one layout, header and
+design tokens so the app looks like a single product.
 
 ## Run
 
 ```bash
 npm install
-npm run dev      # http://localhost:5173
+npm run dev      # http://localhost:5173, /api proxied to 127.0.0.1:8000
 npm run build    # production build in dist/
-npm run preview  # serve the production build
+npm run preview  # serve the built app
 ```
+
+Start the backend first (see the root README). Override the API base with
+`VITE_API_BASE` when the API is not reachable through the dev proxy.
 
 ## Routes
 
-| Screen | Route | Component | Reference |
-| --- | --- | --- | --- |
-| Home | `/` | `src/pages/Home.jsx` | `hydrasense_home/code.html` |
-| Dashboard | `/dashboard` | `src/pages/Dashboard.jsx` | `hydrasense_dashboard/code.html` |
-| Historical Data | `/historical-data` | `src/pages/HistoricalData.jsx` | `hydrasense_historical_data/code.html` |
-| Predictions | `/predictions` | `src/pages/Predictions.jsx` | `hydrasense_predictions/code.html` |
-| About | `/about` | `src/pages/About.jsx` | `hydrasense_about/code.html` |
+| Screen | Route | Component |
+| --- | --- | --- |
+| Home | `/` | `src/pages/Home.jsx` |
+| Dashboard | `/dashboard` | `src/pages/Dashboard.jsx` |
+| Historical Data | `/historical-data` | `src/pages/HistoricalData.jsx` |
+| Predictions | `/predictions` | `src/pages/Predictions.jsx` |
+| About | `/about` | `src/pages/About.jsx` |
 
-Every header nav item and the Home brand logo are `react-router` `<Link>`s, so
-all five screens are reachable from each other without a page reload.
-`src/App.jsx` also resets the scroll position on navigation, because each
-reference screen was a separate document.
+Unknown paths redirect to Home. `src/App.jsx` resets scroll on navigation.
 
-## How the screens were ported
+## Shared chrome
 
-`scripts/port-reference-pages.mjs` converts each reference `code.html` into a
-component. It is content preserving:
+- `src/components/SiteLayout.jsx` — page background, content width
+  (`max-w-[1280px]`), spacing and the header slot used by every page.
+- `src/components/SiteHeader.jsx` — brand mark, the desktop navigation with one
+  active style, and the location control that links to the dashboard filters.
+- `src/components/MobileNav.jsx` — bottom navigation for widths below `md`,
+  where the desktop header navigation is hidden.
 
-- `class` → `className`, SVG attributes → camelCase (`stroke-width` → `strokeWidth`)
-- SVG element names → camelCase (`lineargradient` → `linearGradient`, `fedropshadow` → `feDropShadow`)
-- `<!-- comment -->` → `{/* comment */}`
-- the `<body>` element and its classes become the page root `<div>` (`page-home`, `page-dashboard`, …)
-- in-body `<script>` blocks are dropped — the Historical Data chart is a React component
-- nav/logo anchors become `<Link to="…">`; other anchors (the Home CTAs) are left untouched
+Pages only render their own sections; they must not add another `<header>` or a
+page-level background.
 
-Re-run with `node scripts/port-reference-pages.mjs` (override the reference
-location with `HYDRASENSE_REFERENCE_ROOT`).
+## Shared visual tokens
 
-## Styling
+- Brand blue: `brand-600` (`#0066ff`), hover `brand-700` (`#0052cc`).
+- Cards: `rounded-2xl border border-slate-200 bg-white shadow-sm`.
+- Filter labels: `text-xs font-semibold uppercase tracking-wide text-slate-600`.
+- Filter controls: full-width `rounded-xl` border, `px-4 py-2.5`, brand focus ring.
+- Page titles: `text-3xl font-bold tracking-tight text-slate-900` with a
+  `mt-1.5 text-sm text-slate-500` subtitle.
 
-Tailwind v3 (same engine the reference CDN served) with the `forms` and
-`container-queries` plugins, configured in `tailwind.config.js`. The per-screen
-`<body>` rules from the reference `<style>` blocks live in `src/index.css`,
-scoped to the page root class.
+`tailwind.config.js` defines the `brand` palette and the Inter font stack.
+`src/index.css` only keeps the Home hero gradient.
 
-## Not wired yet
+## Data flow
 
-- `src/api.js`, `src/components/Navbar.jsx` and `src/components/PredictionCard.jsx`
-  are still empty placeholders — no backend calls are made, and all filters,
-  selects and buttons are static markup as in the reference.
-- The Home "Get Started"/"Learn More" buttons still point at `#get-started` /
-  `#learn-more`, exactly as in the reference.
+`src/api.js` is the only place that talks to the backend:
+
+- `listLocations`, `listStations`, `checkHealth` load filters and status.
+- `getHistoricalReadings` powers the Historical tab and the dashboard chart.
+- `makePrediction` returns the per-horizon forecast.
+- `formatDate` / `formatLevel` keep display formatting consistent.
+
+## Components
+
+- `GroundwaterChart.jsx` — Chart.js line chart; observed and predicted series
+  are visually distinct and the depth axis is inverted.
+- `StationMap.jsx` — Google Maps embed for the selected station, with an
+  explicit fallback when coordinates are unavailable.
+
+## Reference screens
+
+`scripts/port-reference-pages.mjs` is the one-off converter used for the
+original port (it regenerates pages from the Stitch `code.html` files and would
+overwrite the current, API-connected versions). It is kept for traceability
+only; do not re-run it on the live pages.
