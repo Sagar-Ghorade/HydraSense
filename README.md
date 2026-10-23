@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # HydraSense — Groundwater Level Monitoring and Prediction
 
 HydraSense is a final-year B.E. IT project that presents DWLR (Dynamic Ground
@@ -155,3 +156,6 @@ backend/.venv/Scripts/python.exe ml/train.py      # optional: retrain ml/model.p
 - The initial commit also tracks `backend/__pycache__/*.pyc` and
   `backend/.venv-install.log`. The new `.gitignore` prevents new ones from being
   added, but those files need `git rm --cached` to leave the index.
+=======
+# HydraSense
+>>>>>>> 6e5961fbcc39e6d6c3e03fa236f76bb5dcc71c1a
